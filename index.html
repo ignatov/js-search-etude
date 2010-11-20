@@ -1,0 +1,201 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <script src="http://code.jquery.com/jquery-1.4.4.js" type="text/javascript"></script>
+  <link rel="stylesheet" href="http://dev.jquery.com/view/trunk/plugins/autocomplete/demo/main.css" type="text/css"/>
+  <link rel="stylesheet" href="http://dev.jquery.com/view/trunk/plugins/autocomplete/jquery.autocomplete.css"
+        type="text/css"/>
+  <script type="text/javascript"
+          src="http://dev.jquery.com/view/trunk/plugins/autocomplete/jquery.autocomplete.js"></script>
+
+  <script>
+    String.prototype.contains = function(str) {
+      return this.toUpperCase().indexOf(str.toUpperCase()) != -1;
+    };
+
+    // --------------- end of utils ---------------
+
+    var GLOBAL_CATEGORIES = {
+      "m-clothing": "Men's clothing",
+      "w-clothing": "Women's clothing",
+      "c-clothing": "Child's clothing",
+      "u-clothing": "Unisex clothing"
+    };
+
+    var GLOBAL_CATALOG = [
+      {"id": 1, "category": "m-clothing", author: "Georg", "phone": "+1 787 325 3768", "content": "Patagonia men's down jacket"},
+      {"id": 2, "category": "w-clothing", author: "Paul", "phone": "+1 430 221 8976", "content": "North Face women down jacket"},
+      {"id": 3, "category": "c-clothing", author: "Mark", "phone": "+1 671 009 4562", "content": "Browning Childrens Kids Down Filled jacket Coat SMALL"}
+    ];
+
+    var GLOBAL_POPULAR = [
+      "Jacket",
+      "Down jacket",
+      "Patagonia",
+      "North Face",
+      "Browning"
+    ];
+
+    // --------------- end of data --------------- 
+
+    $(document).ready(
+        function() {
+          $("#search").autocomplete(GLOBAL_POPULAR);
+          $("#categories_label").hide();
+          $("#result_label").hide();
+        });
+  </script>
+
+  <style type="text/css">
+    label {
+      float: none;
+    }
+
+    ul {
+      list-style-type: none;
+    }
+
+    span {
+      border-bottom: 1px dotted #06B;
+      text-decoration: none;
+      color: #06B;
+      cursor: pointer;
+    }
+
+    .toggle_container {
+      padding-top: 2px;
+    }
+  </style>
+
+</head>
+<body>
+
+<div style="margin: 50px; padding: 50px;">
+  <div style="margin: 50px auto; width: 450px;">
+    <h1 style="margin-bottom: 10px;">Simple search engine</h1>
+    <input id="search" type="text" style="width: 250px;"/>
+    <label for="search">Type "down" or "jacket".</label>
+
+  </div>
+
+  <div style="margin: 50px auto; width: 450px; float:none;">
+    <h1 id="categories_label">Categories</h1>
+
+    <ul id="categories" style="margin-top: 2px; padding: 5px;"></ul>
+  </div>
+
+  <div style="margin: 50px auto; width: 450px; float:none;">
+    <h1 id="result_label">Results</h1>
+
+    <ul id="result" style="margin-top: 2px; padding: 5px;"></ul>
+  </div>
+
+</div>
+
+<script type="text/javascript">
+  function cleanupCategories() {
+    $("#categories").children().remove();
+
+  }
+
+  function cleanupResults() {
+    $("#result").children().remove();
+    $("#result_label").before().hide();
+  }
+
+  function cleanupSearchInput() {
+    $("#search").val("");
+  }
+
+  function hideFoundedItems() {
+    $(".toggle_container").hide();
+  }
+
+  function toggleFoundedItems() {
+    $("li.trigger").click(function() {
+      $(this).toggleClass("active").next().slideToggle("fast");
+    });
+  }
+
+  function preSearch(value) {
+    cleanupResults();
+    var filtered = jQuery.grep(GLOBAL_CATALOG, function(n) {
+      return n.content.contains(value);
+    });
+
+    var possibleCategories = jQuery.map(filtered, function(n) {
+      return n.category;
+    });
+
+    $.each(possibleCategories, function(intIndex, objValue) {
+      var name = GLOBAL_CATEGORIES[objValue];
+      var html = '<li><input type="checkbox" id="' + objValue + '" value="' + objValue + '" /><label for="' + objValue + '"> ' + name + '</label></li>';
+      $("#categories").append($(html));
+    });
+
+    if (possibleCategories.length > 0) {
+      $("#categories_label").show();
+      var html = '<button id="filter">Filter</button>';
+      $("#categories").append($(html));
+
+      $("#filter").click(function () {
+        cleanupResults();
+
+        selectedCategories = new Array();
+
+        $('input:checked').each(function() {
+          selectedCategories.push($(this).val());
+        });
+
+        if (search(value, selectedCategories).length <= 0) {
+          $("#result_label").hide();
+        }
+
+        hideFoundedItems();
+        toggleFoundedItems();
+      });
+    } else {
+      $("#categories_label").hide();
+    }
+  }
+
+  function search(value, categs) {
+    var filtered = jQuery.grep(GLOBAL_CATALOG, function(n) {
+      return n.content.contains(value) && $.inArray(n.category, categs) != -1;
+    });
+
+    $.each(filtered, function(intIndex, objValue) {
+      $("#result")
+          .append($("<li class='trigger'>" + "<span>" + objValue.content + "</span>" + "</li>"))
+          .append(
+          $("<div class='toggle_container' />")
+              .append("<strong>Who: </strong>").append(objValue.author).append("<br />")
+              .append("<strong>Phone: </strong>").append(objValue.phone).append("<br />")
+              .append("<strong>Content: </strong>").append(objValue.content).append("<br />")
+          );
+    });
+
+    $("#result_label").show();
+    return filtered;
+  }
+
+  $(function() {
+    var code = null;
+    $("#search").keypress(function(e) {
+      code = (e.keyCode ? e.keyCode : e.which);
+      if (code == 13) {
+        cleanupResults();
+        cleanupCategories();
+        var value = $("#search").val();
+        preSearch(value);
+      }
+    });
+  });
+
+  $("#clear").click(function () {
+    cleanupResults();
+  });
+</script>
+
+</body>
+</html>

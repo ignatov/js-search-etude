@@ -1,0 +1,37 @@
+label {
+  float: none;
+}
+
+ul {
+  list-style-type: none;
+}
+
+span {
+  border-bottom: 1px dotted #06B;
+  text-decoration: none;
+  color: #06B;
+  cursor: pointer;
+}
+
+.toggle_container {
+  padding-top: 2px;
+}
+
+.wrapper {
+  margin: 20px auto;
+  width: 450px;
+}
+
+.container {
+  margin-top: 2px;
+  padding: 5px;
+}
+
+.trigger {
+  padding: 1px 0;
+}
+
+#search {
+  width: 250px;
+  margin-top: 10px;
+}

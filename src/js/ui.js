@@ -48,7 +48,9 @@ function selectedCategories() {
 }
 
 function showCategoriesSearchResult(value) {
-  var possibleCategories = searchPossibleCategories(value);
+  var searchResult = search(value);
+  var possibleCategories = searchResult.possibleCategories;
+  var advertisements = searchResult.advertisements;
 
   $.each(possibleCategories, function(_, key) {
     var name = CATEGORIES[key];
@@ -63,7 +65,7 @@ function showCategoriesSearchResult(value) {
 
     $("#filter").click(function () {
       cleanupResults();
-      showSearchResults(value, selectedCategories());
+      showSearchResults(advertisements, selectedCategories());
       addTogglingToSearchResults();
     });
   } else {
@@ -71,8 +73,8 @@ function showCategoriesSearchResult(value) {
   }
 }
 
-function showSearchResults(value, selectedCategories) {
-  var searchResults = searchEntries(value, selectedCategories);
+function showSearchResults(advertisements, selectedCategories) {
+  var searchResults = filterAdvertisements(advertisements, selectedCategories);
 
   $.each(searchResults, function(intIndex, objValue) {
     $("#result")

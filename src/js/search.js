@@ -1,17 +1,20 @@
-function searchPossibleCategories(value) {
-  var advertisements = $.grep(CATALOGUE, function(n) { // TODO: extract criteria
-    return n.content.contains(value);
+function search(value) {
+  var advertisements = $.grep(CATALOGUE, function(adv) { // TODO: extract criteria
+    return adv.content.contains(value);
   });
 
-  return $.map(advertisements, function(n) {
-    return n.category;
+  var categories = $.map(advertisements, function(adv) {
+    return adv.category;
   }).unique();
+  
+  var result = new Object();
+  result.advertisements = advertisements;
+  result.possibleCategories = categories;
+  return result;
 }
 
-function searchEntries(value, categs) {
-  return $.grep(CATALOGUE, function(n) { // TODO: extract criteria
-    var contains = n.content.contains(value);
-    var isCategoryInNeeded = $.inArray(n.category, categs) != -1;
-    return contains && isCategoryInNeeded;
+function filterAdvertisements(advertisements, selectedCategories) {
+  return $.grep(advertisements, function(adv) {
+    return selectedCategories.contains(adv.category);
   });
 }

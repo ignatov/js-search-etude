@@ -14,3 +14,7 @@ Array.prototype.unique = function() {
   }
   return res;
 };
+
+Array.prototype.contains = function(what) {
+  return $.inArray(what, this) != -1;
+};
